@@ -1,0 +1,68 @@
+<div class="modal-dialog">
+  <!-- Modal content-->
+  <div class="modal-content">
+    <div class="statuscell-mimic {#if $T.animation != 'None'} statuscell-{$T.animation}{#/if} modal-header statuscell-modal-header" style='color: {$T.color}; background-color: {$T.bgcolor}'>
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <span style="font-weight: 900; font-size: 18px">{$T.text}</span>
+    </div>
+    <div class="modal-body no-margins">
+      {#if $T.images.length == 1}
+      <img class="modal-image img-rounded" width="100%" src="{$T.images[0]}" />
+      {#elseif $T.images.length > 1}
+      <div id="image-carousel" class="carousel modal-image slide rounded" data-ride="carousel">
+        <!-- Indicators -->
+        <ol class="carousel-indicators">
+          <li data-target="#image-carousel" data-slide-to="0" class="active"></li>
+          {#for imageindex = 1 to $T.images.length-1}
+          <li data-target="#image-carousel" data-slide-to={$T.imageindex}></li>
+          {#/for}
+        </ol>
+
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner" role="listbox">
+          <div class="item active">
+            <img class="img-rounded" src='{$T.images[0]}' alt="...">
+            <!-- <div class="carousel-caption">
+              ...
+            </div> -->
+          </div>
+          {#for imageindex = 1 to $T.images.length-1}
+          <div class="item">
+            <img class="img-rounded" src={$T.images[$T.imageindex]} alt="...">
+          </div>
+          {#/for}
+        </div>
+
+        <!-- Controls -->
+        <a class="left carousel-control" href="#image-carousel" role="button" data-slide="prev">
+          <span class="fa fa-chevron-left" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="right carousel-control" href="#image-carousel" role="button" data-slide="next">
+          <span class="fa fa-chevron-right" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+      {#/if}
+      {#if $T.boolean == 'True'}
+      <div class="alert alert-success text-center" role="alert">True</div>
+      {#elseif $T.boolean == 'False'}
+      <div class="alert alert-danger text-center" role="alert">False</div>
+      {#/if}
+      {#if $T.notes.length > 0}
+      <ul class="list-group">
+      {#for noteindex = 0 to $T.notes.length-1}
+        <li class="list-group-item">{$T.notes[$T.noteindex]}</li>
+      {#/for}
+      </ul>
+      {#/if}
+      {#if $T.images.length == 0 && $T.boolean == 'none' && $T.notes.length == 0}
+      <div class="alert alert-info text-center" role="alert">This cell has no data to display</div>
+      {#/if}
+    </div>
+    <!-- <div class="modal-footer"> -->
+      <!-- <button id="Modal_LastUpdate" type="button" class="btn btn-default refresher">Refresh ({{ d.LastUpdated }})</button> -->
+      <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div> -->
+  </div>
+</div>
