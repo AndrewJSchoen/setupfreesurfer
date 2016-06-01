@@ -43,10 +43,10 @@ Cell Features
 MIT
 
 ### Links ###
-[git]: <https://github.com/AndrewJSchoen>
-[git-repo-url]: <https://github.com/AndrewJSchoen/dash.git>
+ - [git](https://github.com/AndrewJSchoen)
+ - [git-repo-url](https://github.com/AndrewJSchoen/dash.git)
 
 Thanks!
-[docopt]: <https://github.com/docopt/docopt>
-[bootstrap]: <https://github.com/twbs/bootstrap>
-[jTemplates]: <http://jtemplates.tpython.com>
+ - [docopt](https://github.com/docopt/docopt)
+ - [bootstrap](https://github.com/twbs/bootstrap)
+ - [jTemplates](http://jtemplates.tpython.com)
