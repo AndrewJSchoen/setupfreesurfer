@@ -9,7 +9,7 @@ import copy
 import re
 from docopt.docopt import docopt
 
-Version = "0.1"
+Version = "0.1.1"
 doc = """
 Dash.
 
