@@ -30,7 +30,7 @@ Cell Features
   - Notes
 
 ### Version ###
-0.1
+0.1.3
 
 ### Upcoming
 

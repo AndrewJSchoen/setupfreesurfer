@@ -10,7 +10,7 @@ import re
 import datetime
 from docopt.docopt import docopt
 
-Version = "0.1.2"
+Version = "0.1.3"
 doc = """
 Dash.
 
@@ -201,7 +201,7 @@ def cell_updater(cell, root, row_id=None, column_id=None, text=None, background_
         working["animation"] = animation
     if add_note != None and type(add_note) == str:
         print("adding note: " +add_note)
-        working["notes"] = [{"timestamp":datetime.utcnow(), "text":add_note}]+working["notes"]
+        working["notes"] = [{"timestamp":datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), "text":add_note}]+working["notes"]
     if remove_image != None and type(int(remove_image)) == int:
         try:
             index = int(remove_image)
