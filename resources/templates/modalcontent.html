@@ -44,9 +44,9 @@
         </a>
       </div>
       {#/if}
-      {#if $T.boolean == 'True'}
+      {#if $T.boolean == true}
       <div class="alert alert-success text-center" role="alert">True</div>
-      {#elseif $T.boolean == 'False'}
+      {#elseif $T.boolean == false}
       <div class="alert alert-danger text-center" role="alert">False</div>
       {#/if}
       {#if $T.notes.length > 0}
