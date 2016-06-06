@@ -50,11 +50,17 @@
       <div class="alert alert-danger text-center" role="alert">False</div>
       {#/if}
       {#if $T.notes.length > 0}
-      <ul class="list-group">
-      {#for noteindex = 0 to $T.notes.length-1}
-        <li class="list-group-item">{$T.notes[$T.noteindex]}</li>
-      {#/for}
-      </ul>
+      <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Notes</div>
+
+        <!-- Table -->
+        <table class="table table-bordered">
+        {#for noteindex = 0 to $T.notes.length-1}
+          <tr><td class='dark'>{moment($T.notes[$T.noteindex].timestamp).calendar()}</td><td>{$T.notes[$T.noteindex].text}</td></tr>
+        {#/for}
+        </table>
+      </div>
       {#/if}
       {#if $T.images.length == 0 && $T.boolean == 'none' && $T.notes.length == 0}
       <div class="alert alert-info text-center" role="alert">This cell has no data to display</div>
