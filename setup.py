@@ -42,6 +42,7 @@ setup(
     classifiers=dashconfig["classifiers"],
     keywords=dashconfig["keywords"],
     packages=dashconfig["packages"],
+    scripts=dashconfig["scripts"],
     install_requires=dashconfig["install_requires"],
     data_files=dashconfig["data_files"],
     include_package_data=dashconfig["include_package_data"]

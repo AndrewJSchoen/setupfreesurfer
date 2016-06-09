@@ -95,7 +95,7 @@ def cleaned_path(path):
     path = path[:-1]
   if path.startswith("="):
     path = path[1:]
-  realpath = os.path.realpath(path)
+  realpath = os.path.realpath(os.path.expanduser(path))
   return realpath
 
 def structure_updater(structure, root, add_columns=None, remove_columns=None, add_rows=None, remove_rows=None):
@@ -222,6 +222,14 @@ def cell_updater(cell, root, row_id=None, column_id=None, text=None, background_
     return working
 
 def create(dirpath, name):
+    """
+    create : create the dashboard
+    ----------------
+
+    #usage:
+    `create(dirpath, name)`
+    Specify the path to the directory you want to use as a dashboard, and the name of the dashboard.
+    """
     src = get_dash_src()
     root = cleaned_path(dirpath)
     os.makedirs(root)
@@ -234,10 +242,40 @@ def create(dirpath, name):
     write_json(root+"/data/structure.json", startingdata)
 
 def update(dirpath, add_columns=None, remove_columns=None, add_rows=None, remove_rows=None):
+    """
+    update : update a dashboard's structure
+    ----------------
+
+    #usage:
+    `update(dirpath, add_columns=None, remove_columns=None, add_rows=None, remove_rows=None)`
+    dirpath: Specify the path to the dashboard directory.
+    All other arguments are optional, and take lists of strings
+    For adding row/columns, strings are the row/column names
+    For removing rows/columns, strings are the row/column ids
+    """
     root = cleaned_path(dirpath)
     update_json(root+"/data/structure.json", callback=structure_updater, root=root, add_columns=add_columns, remove_columns=remove_columns, add_rows=add_rows, remove_rows=remove_rows)
 
-def cell(dirpath, row_id=None, column_id=None, text=None, background_color=None, text_color=None, boolean=None, animation=None, add_image=None, remove_image=None, add_note=None):
+def cell(dirpath, row_id, column_id, text=None, background_color=None, text_color=None, boolean=None, animation=None, add_image=None, remove_image=None, add_note=None):
+    """
+    cell : update a cell's characteristics
+    ----------------
+
+    #usage:
+    `cell(dirpath, row_id, column_id, text=None, background_color=None, text_color=None, boolean=None, animation=None, add_image=None, remove_image=None, add_note=None)`
+    dirpath: Specify the path to the dashboard directory.
+    row_id: Specify the row of the cell.
+    column_id: Specify the column of the cell.
+    All other arguments are optional:
+        text: string
+        background_color: string (hex code, e.g. #f5f5f5)
+        text_color: string (hex code, e.g. #f5f5f5)
+        boolean: boolean value (or string 'none' to set to none.)
+        animation: string, choose from ['wave', 'bars', 'toggle', 'none']
+        add_image: string, path.
+        remove_image: int (index of image to remove)
+        add_note: string
+    """
     root = cleaned_path(dirpath)
     update_json(root+"/data/{0}-{1}.json".format(row_id, column_id), callback=cell_updater, root=root, row_id=row_id, column_id=column_id, text=text, background_color=background_color, text_color=text_color, boolean=boolean, animation=animation, add_image=add_image, remove_image=remove_image, add_note=add_note)
 

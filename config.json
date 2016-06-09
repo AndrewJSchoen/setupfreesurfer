@@ -10,5 +10,6 @@
   "classifiers": ["Topic :: Utilities"],
   "keywords": ["utilities dashboard"],
   "data_files": [],
+  "scripts": ["dash/dash.py"],
   "include_package_data": true
 }
