@@ -180,7 +180,7 @@ def structure_updater(structure, root, add_columns=None, remove_columns=None, ad
                 pass
         return working
     else:
-        print("Errors were found with your update. No changes were made.")
+        raise IOError("Errors were found with your update. No changes were made.")
         return structure
 
 def cell_updater(cell, root, row_id=None, column_id=None, text=None, background_color=None, text_color=None, boolean=None, animation=None, add_image=None, remove_image=None, add_note=None):
@@ -200,7 +200,6 @@ def cell_updater(cell, root, row_id=None, column_id=None, text=None, background_
     if animation != None and animation in ["none", "wave", "toggle", "bars"]:
         working["animation"] = animation
     if add_note != None and type(add_note) == str:
-        print("adding note: " +add_note)
         working["notes"] = [{"timestamp":datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S'), "text":add_note}]+working["notes"]
     if remove_image != None and type(int(remove_image)) == int:
         try:
@@ -288,7 +287,6 @@ def query(dirpath, row_id=None, column_id=None, field=None):
 
 if __name__ == '__main__':
     arguments = docopt(doc, version='Dash v{0}'.format(Version))
-    print(arguments)
     if arguments["create"] == True:
         create(arguments["<dir>"], arguments["--name"])
     elif arguments["update"] == True:
