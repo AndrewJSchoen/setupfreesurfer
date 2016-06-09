@@ -1,0 +1,6 @@
+include dash/resources/*
+include dash/resources/assets/css/*
+include dash/resources/assets/img/*
+include dash/resources/assets/js/*
+include dash/resources/data/*
+include dash/resources/templates/*

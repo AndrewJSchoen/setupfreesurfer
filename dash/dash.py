@@ -8,7 +8,7 @@ import string
 import copy
 import re
 import datetime
-from docopt.docopt import docopt
+from docopt import docopt
 
 Version = "0.1.3"
 doc = """

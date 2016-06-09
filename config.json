@@ -1,0 +1,14 @@
+{
+  "name": "dash",
+  "version": "0.1.3",
+  "author": "Andrew Schoen",
+  "author_email": "schoen.andrewj@gmail.com",
+  "author_github": "AndrewJSchoen",
+  "packages": ["dash"],
+  "description": "A simple, locally-running dashboard you can update via the command-line.",
+  "install_requires": ["docopt"],
+  "classifiers": ["Topic :: Utilities"],
+  "keywords": ["utilities dashboard"],
+  "data_files": [],
+  "include_package_data": true
+}
