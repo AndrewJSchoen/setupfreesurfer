@@ -289,6 +289,7 @@ def query(dirpath, row_id=None, column_id=None, field=None):
 #============================================================================
 
 if __name__ == '__main__':
+    print(get_dash_src())
     arguments = docopt(doc, version='Dash v{0}'.format(Version))
     if arguments["create"] == True:
         create(arguments["<dir>"], arguments["--name"])

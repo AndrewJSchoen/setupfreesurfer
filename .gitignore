@@ -8,5 +8,5 @@
 */*/*.DS_Store
 */*/*._.DS_Store
 build
-dash.egg-info
+palantir.egg-info
 dist
