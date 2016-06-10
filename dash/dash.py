@@ -12,22 +12,22 @@ from docopt import docopt
 
 Version = "0.1.3"
 doc = """
-Dash.
+Palantír.
 
 Usage:
-  dash.py create <dir> (-n <text> | --name <text>)
-  dash.py update <dir> [--addrow <row>...] [--rmrow <row>...] [--addcol <col>...] [--rmcol <col>...]
-  dash.py cell <dir> (-r <row> | --row <row>) (-c <col> | --col <col>) [options]
+  palantir create <dir> (-n <text> | --name <text>)
+  palantir update <dir> [--addrow <row>...] [--rmrow <row>...] [--addcol <col>...] [--rmcol <col>...]
+  palantir cell <dir> (-r <row> | --row <row>) (-c <col> | --col <col>) [options]
 
 Commands:
-  create           Create an empty dash in the directory specified.
-  update           Update a dash in the directory specified. See options for specifics.
+  create           Create an empty dashboard in the directory specified.
+  update           Update a dashboard in the directory specified. See options for specifics.
   cell             Update specific cells by row/column id.
 
 Options:
   -h --help                                       Show this screen.
   -v --version                                    Show the current version.
-  -n <text> --name <text>                         Specify the name of the dash. (create)
+  -n <text> --name <text>                         Specify the name of the dashboard. (create)
   --addrow <row>...                               Add a row. (update)
   --addcol <col>...                               Add a column. (update)
   --rmrow <row>...                                Remove a row. (update)
@@ -54,9 +54,12 @@ def update_json(path, callback=None, **kwargs):
         jsonFile.seek(0)
         jsonFile.truncate()
         newdata = callback(byteify(jsondata), **kwargs)
-        if newdata != None:
+        if newdata != None and newdata != jsondata:
             json.dump(newdata, jsonFile, sort_keys=True, indent=4, ensure_ascii=False)
-    return newdata
+            return newdata
+        else:
+            raise IOError("Update not completed. Check that your input parameters were correct.")
+            return None
 
 def read_json(path):
     try:
@@ -65,7 +68,7 @@ def read_json(path):
           jsonFile.seek(0)
         return byteify(jsondata)
     except:
-        print("Error! json file '{0}' does not exist!".format(cleaned_path(path)))
+        raise IOError("Error! json file '{0}' does not exist!".format(cleaned_path(path)))
         return None
 
 def byteify(input):

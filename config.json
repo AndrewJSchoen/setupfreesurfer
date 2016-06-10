@@ -9,7 +9,22 @@
   "install_requires": ["docopt"],
   "classifiers": ["Topic :: Utilities"],
   "keywords": ["utilities dashboard"],
-  "data_files": [],
+  "package_data": [
+    "dash/README.md",
+    "dash/resources/index.html",
+    "dash/resources/assets/css/bootstrap.min.css",
+    "dash/resources/assets/css/revisions.css",
+    "dash/resources/assets/img/favicon.ico",
+    "dash/resources/assets/img/favicon.png",
+    "dash/resources/assets/js/app.js",
+    "dash/resources/assets/js/bootstrap.min.js",
+    "dash/resources/assets/js/jquery-jtemplates.js",
+    "dash/resources/assets/js/jquery.js",
+    "dash/resources/assets/js/moment.js",
+    "dash/resources/data/structure.json",
+    "dash/resources/templates/modalcontent.html"
+  ],
   "scripts": ["dash/dash.py"],
+  "license": "MIT",
   "include_package_data": true
 }

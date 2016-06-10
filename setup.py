@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import json
-from setuptools import setup
+from setuptools import setup, find_packages
 
 def byteify(input):
     if isinstance(input, dict):
@@ -32,7 +32,7 @@ def read_json(path):
         return None
 
 dashconfig = read_json(os.path.join(os.path.dirname(__file__), "config.json"))
-
+print(dashconfig)
 setup(
     name=dashconfig["name"],
     version=dashconfig["version"],
@@ -41,9 +41,11 @@ setup(
     description=dashconfig["description"],
     classifiers=dashconfig["classifiers"],
     keywords=dashconfig["keywords"],
-    packages=dashconfig["packages"],
+    license=dashconfig["license"],
     scripts=dashconfig["scripts"],
     install_requires=dashconfig["install_requires"],
-    data_files=dashconfig["data_files"],
+    packages=find_packages(),
+    package_dir={dashconfig["name"]:dashconfig["name"]},
+    package_data={dashconfig["name"]:dashconfig["package_data"]},
     include_package_data=dashconfig["include_package_data"]
 )
