@@ -8,11 +8,11 @@ import string
 import copy
 import re
 import datetime
-from docopt import docopt
+from docopt.docopt import docopt
 
 Version = "0.1.3"
 doc = """
-Palantír.
+Palantir.
 
 Usage:
   palantir create <dir> (-n <text> | --name <text>)
@@ -20,28 +20,30 @@ Usage:
   palantir cell <dir> (-r <row> | --row <row>) (-c <col> | --col <col>) [options]
 
 Commands:
-  create           Create an empty dashboard in the directory specified.
-  update           Update a dashboard in the directory specified. See options for specifics.
-  cell             Update specific cells by row/column id.
+  create       Create an empty dashboard in the directory specified.
+  update       Update a dashboard in the directory specified. See options for specifics.
+  cell         Update specific cells by row/column id.
 
 Options:
-  -h --help                                       Show this screen.
-  -v --version                                    Show the current version.
-  -n <text> --name <text>                         Specify the name of the dashboard. (create)
-  --addrow <row>...                               Add a row. (update)
-  --addcol <col>...                               Add a column. (update)
-  --rmrow <row>...                                Remove a row. (update)
-  --rmcol <col>...                                Remove a column. (update)
-  -r <row> --row <row>                            Specify the row of the cell. (cell)
-  -c <col> --col <col>                            Specify the column of the cell. (cell)
-  --settext <text>                                Specify the new text. (cell)
-  --setbgcolor <hex>                              Specify the new background color. (cell)
-  --settxtcolor <hex>                             Specify the new text color. (cell)
-  --setanimate <animation>                        Specify the animation. Choose from 'wave', 'toggle', 'bars', or 'none'. (cell)
-  --setbool <bool>                                Specify the value of the cell boolean. Choose from 'True', 'False' or 'None'. (cell)
-  --addimage <path>                               Add an image to the cell. (cell)
-  --rmimage <index>                               Remove an image from the cell. (cell)
-  --addnote <text>                                Add a note to the cell. (cell)
+  -h --help                     Show this screen.
+  -v --version                  Show the current version.
+  -n <text> --name <text>       Specify the name of the dashboard. (create)
+  --addrow <row>...             Add a row. (update)
+  --addcol <col>...             Add a column. (update)
+  --rmrow <row>...              Remove a row. (update)
+  --rmcol <col>...              Remove a column. (update)
+  -r <row> --row <row>          Specify the row of the cell. (cell)
+  -c <col> --col <col>          Specify the column of the cell. (cell)
+  --settext <text>              Specify the new text. (cell)
+  --setbgcolor <hex>            Specify the new background color. (cell)
+  --settxtcolor <hex>           Specify the new text color. (cell)
+  --setanimate <animation>      Specify the animation.
+                                Choose from 'wave', 'toggle', 'bars', or 'none'. (cell)
+  --setbool <bool>              Specify the value of the cell boolean.
+                                Choose from 'True', 'False' or 'None'. (cell)
+  --addimage <path>             Add an image to the cell. (cell)
+  --rmimage <index>             Remove an image from the cell. (cell)
+  --addnote <text>              Add a note to the cell. (cell)
 """
 
 def write_json(path, data):
@@ -289,7 +291,6 @@ def query(dirpath, row_id=None, column_id=None, field=None):
 #============================================================================
 
 if __name__ == '__main__':
-    print(get_dash_src())
     arguments = docopt(doc, version='Dash v{0}'.format(Version))
     if arguments["create"] == True:
         create(arguments["<dir>"], arguments["--name"])
