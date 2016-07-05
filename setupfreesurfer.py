@@ -423,15 +423,12 @@ def run(args):
       args["--longitudinal"] = False
 
   # Setup
-  print(clean_path(args["--data_dir"]))
-  print(clean_path(args["--code_dir"]))
-  print(clean_path(args["--freesurfer_home"]))
-  print(args["--host"])
   project = Project(data_dir=clean_path(args["--data_dir"]), code_dir=clean_path(args["--code_dir"]), freesurfer_home=clean_path(args["--freesurfer_home"]), is_longitudinal=args["--longitudinal"], host=args["--host"])
   project.create_directories()
   project.write_scripts()
   project.write_submits()
   project.create_monitor()
+  print("Setup Complete!")
 
 #------------------------------------
 #    Main
@@ -439,5 +436,4 @@ def run(args):
 
 if __name__ == '__main__':
     args = docopt(doc, version='Setup FreeSurfer v{0}'.format(Version))
-    print(args)
     run(args)
