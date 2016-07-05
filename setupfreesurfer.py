@@ -7,14 +7,14 @@ import math
 import socket
 import string
 from docopt.docopt import docopt
-from dash import dash
+from palantir import palantir
 
 Version = "0.1"
 doc = """
 Setup FreeSurfer.
 
 Usage:
-  setupfreesurfer.py [options] (--data_dir <dir> | -d <dir>) (--code_dir <dir> | -c <dir>) [(--freesurfer_home <dir> | -f <dir>)] [--host <host>]
+  setupfreesurfer [options] (--data_dir <dir> | -d <dir>) (--code_dir <dir> | -c <dir>) [(--freesurfer_home <dir> | -f <dir>)] [--host <host>]
 
 Options:
   -h --help                             Show this screen.
@@ -83,7 +83,7 @@ class Template(object):
         self.freesurfer_home = project.freesurfer_home
         self.is_longitudinal = project.is_longitudinal
         self.host = project.host
-        self.dash_path = get_src() + "/dash/dash.py"
+        self.palantir_path = get_src() + "/palantir/palantir"
 
     def render_script(self, script_class):
         lines = []
@@ -133,9 +133,9 @@ class Template(object):
         lines.extend(["","errorcode=0",""])
 
         if script_class.name == 'Cross_Initialize':
-            lines.append(self.dash_path+" update "+self.monitor_dir+" --addrow $targetvar")
+            lines.append(self.palantir_path+" update "+self.monitor_dir+" --addrow $targetvar")
         lines.extend([
-        self.dash_path+' cell '+self.monitor_dir+' -r $targetvar -c '+script_class.name+' --settext "Running" --setanimate "bars" --setbgcolor "#efd252" --settxtcolor "#ec6527" --addnote "Started running"',
+        self.palantir_path+' cell '+self.monitor_dir+' -r $targetvar -c '+script_class.name+' --settext "Running" --setanimate "bars" --setbgcolor "#efd252" --settxtcolor "#ec6527" --addnote "Started running"',
         ""
         ])
         if script_class.requires_host == True:
@@ -143,7 +143,7 @@ class Template(object):
             "if [ $HOSTNAME != "+self.host+" ] ; then",
             'echo "ERROR: NOT ON CORRECT HOST FOR RUNNING FREESURFER"',
             'echo "ABORTING PROCESS"',
-            self.dash_path+' cell '+self.monitor_dir+' -r $targetvar -c '+script_class.name+' --settext "Host Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b"',
+            self.palantir_path+' cell '+self.monitor_dir+' -r $targetvar -c '+script_class.name+' --settext "Host Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b"',
             "exit 1",
             "fi"
             ])
@@ -156,11 +156,11 @@ class Template(object):
             if script_class.level == 'base':
                 lines.extend([
                 "  for t in $othervars ; do",
-                "    "+self.dash_path+' cell '+self.monitor_dir+' -r ${idvar}_${t} -c '+script_class.name+' --settext "Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b" --addnote "Error"',
+                "    "+self.palantir_path+' cell '+self.monitor_dir+' -r ${idvar}_${t} -c '+script_class.name+' --settext "Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b" --addnote "Error"',
                 "  done"
                 ])
             else:
-                lines.append("  "+self.dash_path+' cell '+self.monitor_dir+' -r ${targetvar} -c '+script_class.name+' --settext "Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b" --addnote "Error"')
+                lines.append("  "+self.palantir_path+' cell '+self.monitor_dir+' -r ${targetvar} -c '+script_class.name+' --settext "Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b" --addnote "Error"')
             lines.extend(["  exit 1","fi",""])
         lines.extend([
         "endtime=$(date +%s)",
@@ -169,9 +169,9 @@ class Template(object):
         "if [[ ${errorcode} == 0 ]] ; then"
         ])
         if script_class.is_process:
-            lines.append("  "+self.dash_path+' cell '+self.monitor_dir+' -r ${targetvar} -c '+script_class.name+' --settext "Finished" --setanimate "none" --setbgcolor "#009933" --settxtcolor "#004c19" --addnote "Successfully finished"')
+            lines.append("  "+self.palantir_path+' cell '+self.monitor_dir+' -r ${targetvar} -c '+script_class.name+' --settext "Finished" --setanimate "none" --setbgcolor "#009933" --settxtcolor "#004c19" --addnote "Successfully finished"')
         else:
-            lines.append("  "+self.dash_path+' cell '+self.monitor_dir+' -r ${targetvar} -c '+script_class.name+' --settext "Inactive" --setanimate "none" --setbgcolor "#F0F0F0" --settxtcolor "#969696" --addnote "Finished')
+            lines.append("  "+self.palantir_path+' cell '+self.monitor_dir+' -r ${targetvar} -c '+script_class.name+' --settext "Inactive" --setanimate "none" --setbgcolor "#F0F0F0" --settxtcolor "#969696" --addnote "Finished')
 
         lines.extend([
         "fi",
@@ -354,11 +354,11 @@ class Project(object):
     def create_monitor(self):
         if exists(self.monitor_dir):
             shutil.rmtree(self.monitor_dir)
-        dash.create(self.monitor_dir, "FreeSurfer")
-        dash.update(self.monitor_dir, add_rows=["Project"], add_columns=[script.name for script in self.scripts])
+        palantir.create(self.monitor_dir, "FreeSurfer")
+        palantir.update(self.monitor_dir, add_rows=["Project"], add_columns=[script.name for script in self.scripts])
         for script in self.scripts:
             if script.level != "project":
-                dash.cell(self.monitor_dir, row_id="Project", column_id=script.name, text="N/A", background_color="#d2d2d2", text_color="#f0f0f0", boolean="False")
+                palantir.cell(self.monitor_dir, row_id="Project", column_id=script.name, text="N/A", background_color="#d2d2d2", text_color="#f0f0f0", boolean="False")
 
 
 class Script(object):
@@ -386,20 +386,6 @@ class Script(object):
         self.script_text = project.template.render_script(self)
         self.submit_text = project.template.render_submit(self)
 
-    # def __as_dict__(self):
-    #     dictionary = {
-    #     "script_name": self.name,
-    #     "level": self.level,
-    #     "is_process": self.is_process,
-    #     "requires_host": self.requires_host,
-    #     "rel_executable_path": self.rel_executable_path,
-    #     "rel_submit_path": self.rel_submit_path,
-    #     "rel_log_path": self.rel_log_path,
-    #     "rel_out_path": self.rel_out_path,
-    #     "rel_err_path": self.rel_err_path,
-    #     }
-    #     return dictionary
-
     def write_script(self):
         write_file(self.executable_path, self.script_text)
         os.chmod(self.executable_path, os.stat(self.executable_path).st_mode | 0111)
@@ -409,249 +395,6 @@ class Script(object):
         write_file(self.submit_path, self.submit_text)
         pass
 
-#============================================================================
-#============ String Library ================================================
-
-# def defineScripts(arguments):
-#     ScriptHeader = """#!/bin/sh
-#
-# export FREESURFER_HOME=/apps/x86_64_sci7/freesurfer-latest
-# source $FREESURFER_HOME/SetUpFreeSurfer.sh
-# export SUBJECTS_DIR={0}/subjects
-#
-# STARTTIME=$(date +%s)
-# curtime=$(date +%FT%R:%S)
-# """.format(arguments["FreeSurferDir"])
-#     if arguments["IsLongitudinal"]:
-#         substring = "${subid}_${time}"
-#         subarglist = ["subid=$1", "time=$2"]
-#         allotherargs = "${@:3}"
-#         allbutfirstarg = "${@:2}"
-#     else:
-#         substring = "${subid}"
-#         subarglist = ["subid=$1"]
-#         allotherargs = "${@:2}"
-#         allbutfirstarg = allotherargs
-#
-#     orig =      {"Name": "Orig",
-#                  "InputLines": subarglist + ["inputstring=''", 'for i in {0} ; do inputstring="${{inputstring}} -i ${{i}}" ; done'.format(allotherargs)],
-#                  "Steps": ["recon-all ${{inputstring}} -subjid {0} -all".format(substring)]}
-#     restart =   {"Name": "Restart",
-#                  "InputLines": subarglist,
-#                  "Steps": ["recon-all -clean -subjid {0} -all".format(substring)]}
-#     base_gen =  {"Name": "Base",
-#                  "InputLines": ["subid=$1", "inputstring=''", "inputlist=''", 'for t in {0} ; do inputstring="${{inputstring}} -tp ${{subid}}_${{t}}" ; inputlist="${{inputlist}} ${{subid}}_${{t}} ; done'.format(allbutfirstarg)],
-#                  "Steps": ["recon-all -base ${subid}_base ${inputstring} -all"]}
-#     long_gen =  {"Name": "Long",
-#                  "InputLines": subarglist,
-#                  "Steps": ["recon-all -long ${subid}_${time} ${subid}_base -all"]}
-#
-#
-#     cross_talEdit =   {"Name": "Cross_talEdit",
-#                        "InputLines": subarglist,
-#                        "Steps": ["recon-all -subjid {0} -all".format(substring)]}
-#
-#     cross_maskEdit = {"Name": "Cross_maskEdit",
-#                          "InputLines": subarglist,
-#                          "Steps": ["recon-all -autorecon2 -autorecon3 -subjid {0}".format(substring)]}
-#     cross_cpEdit =   {"Name": "Cross_cpEdit",
-#                          "InputLines": subarglist,
-#                          "Steps": ["recon-all -autorecon2-cp -autorecon3 -subjid {0}".format(substring)]}
-#     cross_wmEdit =   {"Name": "Cross_wmEdit",
-#                          "InputLines": subarglist,
-#                          "Steps": ["recon-all -autorecon2-wm -autorecon3 -subjid {0}".format(substring)]}
-#     cross_gmEdit =   {"Name": "Cross_gmEdit",
-#                          "InputLines": subarglist,
-#                          "Steps": ["recon-all -autorecon-pial -subjid {0} -all".format(substring)]}
-#
-#     base_talEdit = {"Name": "Base_talEdit",
-#                         "InputLines": ["subid=$1", "inputstring=''", "inputlist=''", 'for t in {0} ; do inputstring="${{inputstring}} -tp ${{subid}}_${{t}}" ; inputlist="${{inputlist}} ${{subid}}_${{t}} ; done'.format(allbutfirstarg)],
-#                         "Steps": ["recon-all -base ${subid}_base ${inputstring} -all"]}
-#
-#     base_maskEdit = {"Name": "Base_maskEdit",
-#                         "InputLines": ["subid=$1", "inputstring=''", "inputlist=''", 'for t in {0} ; do inputstring="${{inputstring}} -tp ${{subid}}_${{t}}" ; inputlist="${{inputlist}} ${{subid}}_${{t}} ; done'.format(allbutfirstarg)],
-#                         "Steps": ["recon-all -base ${subid}_base ${inputstring} -autorecon2 -autorecon3"]}
-#     base_cpEdit =   {"Name": "Base_cpEdit",
-#                         "InputLines": ["subid=$1", "inputstring=''", "inputlist=''", 'for t in {0} ; do inputstring="${{inputstring}} -tp ${{subid}}_${{t}}" ; inputlist="${{inputlist}} ${{subid}}_${{t}} ; done'.format(allbutfirstarg)],
-#                         "Steps": ["recon-all -base ${subid}_base ${inputstring} -autorecon2-cp -autorecon3"]}
-#     base_wmEdit =   {"Name": "Base_wmEdit",
-#                         "InputLines": ["subid=$1", "inputstring=''", "inputlist=''", 'for t in {0} ; do inputstring="${{inputstring}} -tp ${{subid}}_${{t}}" ; inputlist="${{inputlist}} ${{subid}}_${{t}} ; done'.format(allbutfirstarg)],
-#                         "Steps": ["recon-all -base ${subid}_base ${inputstring} -autorecon2-wm -autorecon3"]}
-#     base_gmEdit =   {"Name": "Base_gmEdit",
-#                         "InputLines": ["subid=$1", "inputstring=''", "inputlist=''", 'for t in {0} ; do inputstring="${{inputstring}} -tp ${{subid}}_${{t}}" ; inputlist="${{inputlist}} ${{subid}}_${{t}} ; done'.format(allbutfirstarg)],
-#                         "Steps": ["recon-all -base ${subid}_base ${inputstring} -autorecon-pial"]}
-#
-#     long_talEdit = {"Name": "Long_talEdit",
-#                         "InputLines": subarglist,
-#                         "Steps": ["recon-all -long ${subid}_${time} ${subid}_base -all"]}
-#     long_maskEdit = {"Name": "Long_maskEdit",
-#                         "InputLines": subarglist,
-#                         "Steps": ["recon-all -long ${subid}_${time} ${subid}_base -autorecon2 -autorecon3"]}
-#     long_cpEdit =   {"Name": "Long_cpEdit",
-#                         "InputLines": subarglist,
-#                         "Steps": ["recon-all -long ${subid}_${time} ${subid}_base -autorecon2-cp -autorecon3"]}
-#     long_wmEdit =   {"Name": "Long_wmEdit",
-#                         "InputLines": subarglist,
-#                         "Steps": ["recon-all -long ${subid}_${time} ${subid}_base -autorecon2-wm -autorecon3"]}
-#     long_gmEdit =   {"Name": "Long_gmEdit",
-#                         "InputLines": subarglist,
-#                         "Steps": ["recon-all -long ${subid}_${time} ${subid}_base -autorecon-pial"]}
-#
-#     extractvals = {"Name": "ExtractVals",
-#                    "InputLines": ["subjectslist=$@"],
-#                    "Steps": ["aparcstats2table --hemi lh --subjects $subjectslist --meas area --parc aparc.a2009s --tablefile {0}/analysis/atlas-extracted/lh_aparc-a2009-area-table.csv".format(arguments["FreeSurferDir"]),
-#                              "aparcstats2table --hemi lh --subjects $subjectslist --meas meancurv --parc aparc.a2009s --tablefile {0}/analysis/atlas-extracted/lh_aparc-a2009-meancurv-table.csv".format(arguments["FreeSurferDir"]),
-#                              "aparcstats2table --hemi lh --subjects $subjectslist --meas thickness --parc aparc.a2009s --tablefile {0}/analysis/atlas-extracted/lh_aparc-a2009-thickness-table.csv".format(arguments["FreeSurferDir"]),
-#                              "aparcstats2table --hemi lh --subjects $subjectslist --meas volume --parc aparc.a2009s --tablefile {0}/analysis/atlas-extracted/lh_aparc-a2009-volume-table.csv".format(arguments["FreeSurferDir"]),
-#                              "aparcstats2table --hemi rh --subjects $subjectslist --meas area --parc aparc.a2009s --tablefile {0}/analysis/atlas-extracted/rh_aparc-a2009-area-table.csv".format(arguments["FreeSurferDir"]),
-#                              "aparcstats2table --hemi rh --subjects $subjectslist --meas meancurv --parc aparc.a2009s --tablefile {0}/analysis/atlas-extracted/rh_aparc-a2009-meancurv-table.csv".format(arguments["FreeSurferDir"]),
-#                              "aparcstats2table --hemi rh --subjects $subjectslist --meas thickness --parc aparc.a2009s --tablefile {0}/analysis/atlas-extracted/rh_aparc-a2009-thickness-table.csv".format(arguments["FreeSurferDir"]),
-#                              "aparcstats2table --hemi rh --subjects $subjectslist --meas volume --parc aparc.a2009s --tablefile {0}/analysis/atlas-extracted/rh_aparc-a2009-volume-table.csv".format(arguments["FreeSurferDir"]),
-#                              "segstats2table --subjects $subjectslist --stats aseg.stats --tablefile {0}/analysis/atlas-extracted/aseg-vol-table.csv".format(arguments["FreeSurferDir"])]}
-#
-#
-#     cross_talView = {"Name": "Cross_talView",
-#                      "InputLines": subarglist,
-#                      "Steps": ["tkregister2 --mgz --s {0} --fstal --surf orig".format(substring)]}
-#
-#     cross_maskView = {"Name": "Cross_maskView",
-#                      "InputLines": subarglist,
-#                      "Steps": ["freeview -v {0}/subjects/{1}/mri/T1.mgz {0}/subjects/{1}/mri/brainmask.mgz:colormap=heat:opacity=0.4".format(arguments["FreeSurferDir"], substring)]}
-#
-#     cross_cpView = {"Name": "Cross_cpView",
-#                      "InputLines": subarglist,
-#                      "Steps": ["freeview -v {0}/subjects/{1}/mri/T1.mgz {0}/subjects/{1}/mri/brainmask.mgz {0}/subjects/{1}/mri/wm.mgz:colormap=heat:opacity=0.3 -f {0}/subjects/{1}/surf/lh.white:edgecolor=yellow {0}/subjects/{1}/surf/lh.pial:edgecolor=red {0}/subjects/{1}/surf/rh.white:edgecolor=yellow {0}/subjects/{1}/surf/rh.pial:edgecolor=red".format(arguments["FreeSurferDir"], substring)]}
-#
-#     cross_wmView = {"Name": "Cross_wmView",
-#                      "InputLines": subarglist,
-#                      "Steps": [.format(arguments["FreeSurferDir"], substring)]}
-#
-#     cross_gmView = {"Name": "Cross_gmView",
-#                      "InputLines": subarglist,
-#                      "Steps": ["freeview -v {0}/subjects/{1}/mri/T1.mgz {0}/subjects/{1}/mri/brainmask.mgz {0}/subjects/{1}/mri/wm.mgz:opacity=0 -f {0}/subjects/{1}/surf/lh.white:edgecolor=yellow {0}/subjects/{1}/surf/lh.pial:edgecolor=red {0}/subjects/{1}/surf/rh.white:edgecolor=yellow {0}/subjects/{1}/surf/rh.pial:edgecolor=red".format(arguments["FreeSurferDir"], substring)]}
-#
-#
-#     base_talView = {"Name": "Base_talView",
-#                      "InputLines": ["subid=$1"],
-#                      "Steps": ["tkregister2 --mgz --s ${subid}_base --fstal --surf orig"]}
-#
-#     base_maskView = {"Name": "Base_maskView",
-#                      "InputLines": ["subid=$1"],
-#                      "Steps": ["freeview -v {0}/subjects/${{subid}}_base/mri/T1.mgz {0}/subjects/${{subid}}_base/mri/brainmask.mgz:colormap=heat:opacity=0.4".format(arguments["FreeSurferDir"])]}
-#
-#     base_cpView = {"Name": "Base_cpView",
-#                      "InputLines": ["subid=$1"],
-#                      "Steps": ["freeview -v {0}/subjects/${{subid}}_base/mri/T1.mgz {0}/subjects/${{subid}}_base/mri/brainmask.mgz {0}/subjects/${{subid}}_base/mri/wm.mgz:colormap=heat:opacity=0.3 -f {0}/subjects/${{subid}}_base/surf/lh.white:edgecolor=yellow {0}/subjects/${{subid}}_base/surf/lh.pial:edgecolor=red {0}/subjects/${{subid}}_base/surf/rh.white:edgecolor=yellow {0}/subjects/${{subid}}_base/surf/rh.pial:edgecolor=red".format(arguments["FreeSurferDir"])]}
-#
-#     base_wmView = {"Name": "Base_wmView",
-#                    "InputLines": ["subid=$1"],
-#                    "Steps": ["freeview -v {0}/subjects/${{subid}}_base/mri/T1.mgz {0}/subjects/${{subid}}_base/mri/brainmask.mgz {0}/subjects/${{subid}}_base/mri/wm.mgz:opacity=0.5 -f {0}/subjects/${{subid}}_base/surf/lh.white:edgecolor=yellow {0}/subjects/${{subid}}_base/surf/lh.pial:edgecolor=red {0}/subjects/${{subid}}_base/surf/rh.white:edgecolor=yellow {0}/subjects/${{subid}}_base/surf/rh.pial:edgecolor=red".format(arguments["FreeSurferDir"])]}
-#
-#     base_gmView = {"Name": "Base_gmView",
-#                    "InputLines": ["subid=$1"],
-#                    "Steps": ["freeview -v {0}/subjects/${{subid}}_base/mri/T1.mgz {0}/subjects/${{subid}}_base/mri/brainmask.mgz {0}/subjects/${{subid}}_base/mri/wm.mgz:opacity=0 -f {0}/subjects/${{subid}}_base/surf/lh.white:edgecolor=yellow {0}/subjects/${{subid}}_base/surf/lh.pial:edgecolor=red {0}/subjects/${{subid}}_base/surf/rh.white:edgecolor=yellow {0}/subjects/${{subid}}_base/surf/rh.pial:edgecolor=red".format(arguments["FreeSurferDir"])]}
-#
-#
-#     long_talView = {"Name": "Long_talView",
-#                     "InputLines": subarglist,
-#                     "Steps": ["tkregister2 --mgz --s {0}.long.${{subid}}_base --fstal --surf orig".format(substring)]}
-#
-#     long_maskView = {"Name": "Long_maskView",
-#                      "InputLines": subarglist,
-#                      "Steps": ["freeview -v {0}/subjects/{1}.long.${{subid}}_base/mri/T1.mgz {0}/subjects/{1}.long.${{subid}}_base/mri/brainmask.mgz:colormap=heat:opacity=0.4".format(arguments["FreeSurferDir"], substring)]}
-#
-#     long_cpView = {"Name": "Long_cpView",
-#                      "InputLines": subarglist,
-#                      "Steps": ["freeview -v {0}/subjects/{1}.long.${{subid}}_base/mri/T1.mgz {0}/subjects/{1}.long.${{subid}}_base/mri/brainmask.mgz {0}/subjects/{1}.long.${{subid}}_base/mri/wm.mgz:colormap=heat:opacity=0.3 -f {0}/subjects/{1}.long.${{subid}}_base/surf/lh.white:edgecolor=yellow {0}/subjects/{1}.long.${{subid}}_base/surf/lh.pial:edgecolor=red {0}/subjects/{1}.long.${{subid}}_base/surf/rh.white:edgecolor=yellow {0}/subjects/{1}.long.${{subid}}_base/surf/rh.pial:edgecolor=red".format(arguments["FreeSurferDir"], substring)]}
-#
-#     long_wmView = {"Name": "Long_wmView",
-#                    "InputLines": subarglist,
-#                    "Steps": ["freeview -v {0}/subjects/{1}.long.${{subid}}_base/mri/T1.mgz {0}/subjects/{1}.long.${{subid}}_base/mri/brainmask.mgz {0}/subjects/{1}.long.${{subid}}_base/mri/wm.mgz:opacity=0.5 -f {0}/subjects/{1}.long.${{subid}}_base/surf/lh.white:edgecolor=yellow {0}/subjects/{1}.long.${{subid}}_base/surf/lh.pial:edgecolor=red {0}/subjects/{1}.long.${{subid}}_base/surf/rh.white:edgecolor=yellow {0}/subjects/{1}.long.${{subid}}_base/surf/rh.pial:edgecolor=red".format(arguments["FreeSurferDir"], substring)]}
-#
-#     long_gmView = {"Name": "Long_gmView",
-#                    "InputLines": subarglist,
-#                    "Steps": ["freeview -v {0}/subjects/{1}.long.${{subid}}_base/mri/T1.mgz {0}/subjects/{1}.long.${{subid}}_base/mri/brainmask.mgz {0}/subjects/{1}.long.${{subid}}_base/mri/wm.mgz:opacity=0 -f {0}/subjects/{1}.long.${{subid}}_base/surf/lh.white:edgecolor=yellow {0}/subjects/{1}.long.${{subid}}_base/surf/lh.pial:edgecolor=red {0}/subjects/{1}.long.${{subid}}_base/surf/rh.white:edgecolor=yellow {0}/subjects/{1}.long.${{subid}}_base/surf/rh.pial:edgecolor=red".format(arguments["FreeSurferDir"], substring)]}
-#
-#     if arguments["IsLongitudinal"]:
-#         ScriptList = [orig, restart, base_gen, long_gen, cross_talEdit, cross_maskEdit, cross_cpEdit, cross_wmEdit, cross_gmEdit, base_talEdit, base_maskEdit, base_cpEdit, base_wmEdit, base_gmEdit, long_talEdit, long_maskEdit, long_cpEdit, long_wmEdit, long_gmEdit, extractvals, cross_talView, cross_maskView, cross_cpView, cross_wmView, cross_gmView, base_talView, base_maskView, base_cpView, base_wmView, base_gmView, long_talView, long_maskView, long_cpView, long_wmView, long_gmView]
-#     else:
-#         ScriptList = [orig, restart, cross_talEdit, cross_maskEdit, cross_cpEdit, cross_wmEdit, cross_gmEdit, extractvals, cross_talView, cross_maskView, cross_cpView, cross_wmView, cross_gmView]
-#
-#     return ScriptHeader, ScriptList
-
-
-    # os.chmod(arguments["FreeSurferDir"]+"/scripts/"+script["Name"]+".sh", os.stat(arguments["FreeSurferDir"]+"/scripts/"+script["Name"]+".sh").st_mode | 0111)
-
-#============================================================================
-#============ Submit Writing ================================================
-
-# def writeSubmit(script, arguments):
-#     print(script["Name"])
-#     standardheader = """Universe=vanilla
-# getenv=True
-# request_memory=3072
-# initialdir={0}/subjects
-# Executable={0}/scripts/{1}.sh
-# Log={0}/scripts/condorlogs/{1}_$(target)_log.txt
-# Output={0}/scripts/condorlogs/{1}_$(target)_out.txt
-# Error={0}/scripts/condorlogs/{1}_$(target)_err.txt
-# Notification=Error
-# """.format(arguments["FreeSurferDir"], script["Name"])
-#     if script["Name"] == "ExtractVals":
-#         subjectlist = []
-#         if arguments["IsLongitudinal"]:
-#             for rowindex, row in arguments["InputFile"].iterrows():
-#                 subjectlist.append("{0}_{1}".format(rowindex, row["Timepoint"]))
-#         else:
-#             for rowindex, row in arguments["InputFile"].iterrows():
-#                 subjectlist.append("{0}".format(rowindex))
-#         queuelist = ["\ntarget=Project\narguments=" + '"' + " ".join(subjectlist) + '"' + "\nQueue\n"]
-#     elif script["Name"] == "Orig":
-#         queuelist = []
-#         for rowindex, row in arguments["InputFile"].iterrows():
-#             filesheaders = []
-#             subjexistingfiles = []
-#             rowindices = list(row.index)
-#             for key in rowindices:
-#                 if "File" in key:
-#                     filesheaders.append(key)
-#             for fileheader in filesheaders:
-#                 if row[fileheader] != None:
-#                     subjexistingfiles.append(row[fileheader])
-#             subjarguments = [rowindex]
-#             if arguments["IsLongitudinal"]:
-#                 subjarguments.append(str(row["Timepoint"]))
-#             subjarguments.extend(subjexistingfiles)
-#             if arguments["IsLongitudinal"]:
-#                 queuelist.append('\ntarget={0}_{1}\narguments="{2}"\nQueue\n'.format(rowindex, row["Timepoint"], " ".join(subjarguments)))
-#             else:
-#                 queuelist.append('\ntarget={0}\narguments="{1}"\nQueue\n'.format(rowindex, " ".join(subjarguments)))
-#     elif script["Name"] in ["Restart", "Cross_talEdit", "Cross_maskEdit", "Cross_cpEdit", "Cross_wmEdit", "Cross_gmEdit", "Long", "Long_talEdit", "Long_maskEdit", "Long_cpEdit", "Long_wmEdit", "Long_gmEdit"]:
-#         queuelist = []
-#         for rowindex, row in arguments["InputFile"].iterrows():
-#             if arguments["IsLongitudinal"]:
-#                 queuelist.append('\ntarget={0}_{1}\narguments="{0} {1}"\nQueue\n'.format(rowindex, row["Timepoint"]))
-#             else:
-#                 queuelist.append('\ntarget={0}\narguments="{0}"\nQueue\n'.format(rowindex))
-#     else:
-#         queuelist = []
-#         uniquesubjects = set(list(arguments["InputFile"].index))
-#         for uniquesubject in uniquesubjects:
-#             subjectframesubsection = arguments["InputFile"][(arguments["InputFile"].index == str(uniquesubject))]
-#             intsubjecttimepoints = list(subjectframesubsection["Timepoint"])
-#             subjecttimepoints = []
-#             for subjecttimepoint in intsubjecttimepoints:
-#                 subjecttimepoints.append(str(subjecttimepoint))
-#             subjarguments = [uniquesubject] + subjecttimepoints
-#             queuelist.append("\ntarget="+uniquesubject+"\narguments=" + '"' + " ".join(subjarguments) + '"' + "\nQueue\n")
-#     condorsubmitlist = [standardheader] + queuelist
-#     condorsubmitcontents = "\n".join(condorsubmitlist)
-#     writeFile(condorsubmitcontents, arguments["FreeSurferDir"]+"/scripts/condorsubmit/cs_"+script["Name"]+".txt")
-
-
-#------------------------------------
-#    Run
-#------------------------------------
 
 def run(args):
 
