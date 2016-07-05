@@ -1,5 +1,5 @@
 $.ajaxSetup({ cache: false });
-var structure = {"name": "DASH",
+var structure = {"name": "Palantir",
                  "rows": [],
                  "columns": []
                  }
@@ -67,7 +67,7 @@ function generate(data) {
     if (JSON.stringify(data) !== JSON.stringify(structure) || data.rows.length == 0 || data.cols.length == 0) {
       console.log("Updating structure")
       titleElement = document.getElementById("title");
-      titleElement.innerHTML = "DASH | " + data["name"];
+      titleElement.innerHTML = "Palantir | " + data["name"];
       navtitleElement = document.getElementById("navbartitle");
       navtitleElement.innerHTML = data["name"];
       if (data.rows.length == 0 || data.cols.length == 0) {
