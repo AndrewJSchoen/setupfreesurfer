@@ -9,7 +9,7 @@ import string
 from docopt.docopt import docopt
 from palantir import palantir
 
-Version = "0.1.1"
+Version = "0.1.2"
 doc = """
 Setup FreeSurfer.
 
