@@ -9,7 +9,7 @@ import string
 from docopt.docopt import docopt
 from palantir import palantir
 
-Version = "0.1"
+Version = "0.1.1"
 doc = """
 Setup FreeSurfer.
 
@@ -148,20 +148,24 @@ class Template(object):
             "fi"
             ])
         for step in script_class.steps:
-            lines.extend([
-            "if "+step+" ; then",
-            "  errorcode=$((errorcode + 0))",
-            "else"
-            ])
-            if script_class.level == 'base':
+            if script_class.is_process == True:
                 lines.extend([
-                "  for t in $othervars ; do",
-                "    "+self.palantir_path+' cell '+self.monitor_dir+' -r ${idvar}_${t} -c '+script_class.name+' --settext "Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b" --addnote "Error"',
-                "  done"
+                "if "+step+" ; then",
+                "  errorcode=$((errorcode + 0))",
+                "else"
                 ])
+                if script_class.level == 'base':
+                    lines.extend([
+                    "  for t in $othervars ; do",
+                    "    "+self.palantir_path+' cell '+self.monitor_dir+' -r ${idvar}_${t} -c '+script_class.name+' --settext "Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b" --addnote "Error"',
+                    "  done"
+                    ])
+                else:
+                    lines.append("  "+self.palantir_path+' cell '+self.monitor_dir+' -r ${targetvar} -c '+script_class.name+' --settext "Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b" --addnote "Error"')
+                lines.extend(["  exit 1","fi",""])
             else:
-                lines.append("  "+self.palantir_path+' cell '+self.monitor_dir+' -r ${targetvar} -c '+script_class.name+' --settext "Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b" --addnote "Error"')
-            lines.extend(["  exit 1","fi",""])
+                lines.append(step)
+
         lines.extend([
         "endtime=$(date +%s)",
         "totaltime=$((endtime - starttime))",
@@ -317,7 +321,7 @@ class Project(object):
 
         self.scripts.extend([
             Script("Cross_talView", "cross", self, is_process=False, steps=["tkregister2 --mgz --s ${{targetvar}} --fstal --surf orig".format(self.subjects_dir)], requires_host=False),
-            Script("Cross_maskView", "cross", self, is_process=False, steps=["freeview -v {0}${{targetvar}}/mri/T1.mgz {0}/subjects/${{targetvar}}/mri/brainmask.mgz:colormap=heat:opacity=0.4".format(self.subjects_dir)], requires_host=False),
+            Script("Cross_maskView", "cross", self, is_process=False, steps=["freeview -v {0}${{targetvar}}/mri/T1.mgz {0}${{targetvar}}/mri/brainmask.mgz:colormap=heat:opacity=0.4".format(self.subjects_dir)], requires_host=False),
             Script("Cross_cpView", "cross", self, is_process=False, steps=["freeview -v {0}${{targetvar}}/mri/T1.mgz {0}${{targetvar}}/mri/brainmask.mgz {0}${{targetvar}}/mri/wm.mgz:colormap=heat:opacity=0.3 -f {0}${{targetvar}}/surf/lh.white:edgecolor=yellow {0}${{targetvar}}/surf/lh.pial:edgecolor=red {0}${{targetvar}}/surf/rh.white:edgecolor=yellow {0}${{targetvar}}/surf/rh.pial:edgecolor=red -c {0}${{targetvar}}/tmp/control.dat".format(self.subjects_dir)], requires_host=False),
             Script("Cross_wmView", "cross", self, is_process=False, steps=["freeview -v {0}${{targetvar}}/mri/T1.mgz {0}${{targetvar}}/mri/brainmask.mgz {0}${{targetvar}}/mri/wm.mgz:opacity=0.5 -f {0}${{targetvar}}/surf/lh.white:edgecolor=yellow {0}${{targetvar}}/surf/lh.pial:edgecolor=red {0}${{targetvar}}/surf/rh.white:edgecolor=yellow {0}${{targetvar}}/surf/rh.pial:edgecolor=red".format(self.subjects_dir)], requires_host=False),
             Script("Cross_gmView","cross", self, is_process=False, steps=["freeview -v {0}${{targetvar}}/mri/T1.mgz {0}${{targetvar}}/mri/brainmask.mgz {0}${{targetvar}}/mri/wm.mgz:opacity=0 -f {0}${{targetvar}}/surf/lh.white:edgecolor=yellow {0}${{targetvar}}/surf/lh.pial:edgecolor=red {0}${{targetvar}}/surf/rh.white:edgecolor=yellow {0}${{targetvar}}/surf/rh.pial:edgecolor=red".format(self.subjects_dir)], requires_host=False)
@@ -349,7 +353,8 @@ class Project(object):
 
     def write_submits(self):
         for script in self.scripts:
-            script.write_submit()
+            if script.is_process:
+                script.write_submit()
 
     def create_monitor(self):
         if exists(self.monitor_dir):
