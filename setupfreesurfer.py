@@ -134,16 +134,33 @@ class Template(object):
 
         if script_class.name == 'Cross_Initialize':
             lines.append(self.palantir_path+" update "+self.monitor_dir+" --addrow $targetvar")
-        lines.extend([
-        self.palantir_path+' cell '+self.monitor_dir+' -r $targetvar -c '+script_class.name+' --settext "Running" --setanimate "bars" --setbgcolor "#efd252" --settxtcolor "#ec6527" --addnote "Started running"',
-        ""
-        ])
-        if script_class.requires_host == True:
+        if "Base" in script_class.name:
+            lines.extend([
+            "  for t in $othervars ; do",
+            "    "+self.palantir_path+' cell '+self.monitor_dir+' -r ${idvar}_${t} -c '+script_class.name+' --settext "Running" --setanimate "bars" --setbgcolor "#efd252" --settxtcolor "#ec6527" --addnote "Started running"',
+            "  done"
+            ])
+        else:
+            lines.extend([
+                self.palantir_path+' cell '+self.monitor_dir+' -r $targetvar -c '+script_class.name+' --settext "Running" --setanimate "bars" --setbgcolor "#efd252" --settxtcolor "#ec6527" --addnote "Started running"',""
+                ])
+        if script_class.requires_host == True and "Base" in script_class.name:
             lines.extend([
             "if [ $HOSTNAME != "+self.host+" ] ; then",
             'echo "ERROR: NOT ON CORRECT HOST FOR RUNNING FREESURFER"',
             'echo "ABORTING PROCESS"',
             self.palantir_path+' cell '+self.monitor_dir+' -r $targetvar -c '+script_class.name+' --settext "Host Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b"',
+            "exit 1",
+            "fi"
+            ])
+        elif script_class.requires_host == True:
+            lines.extend([
+            "if [ $HOSTNAME != "+self.host+" ] ; then",
+            'echo "ERROR: NOT ON CORRECT HOST FOR RUNNING FREESURFER"',
+            'echo "ABORTING PROCESS"',
+            "  for t in $othervars ; do",
+            "    "+self.palantir_path+' cell '+self.monitor_dir+' -r ${idvar}_${t} -c '+script_class.name+' --settext "Host Error" --setanimate "toggle" --setbgcolor "#cb3448" --settxtcolor "#791f2b"',
+            "  done",
             "exit 1",
             "fi"
             ])
@@ -172,8 +189,18 @@ class Template(object):
         "",
         "if [[ ${errorcode} == 0 ]] ; then"
         ])
-        if script_class.is_process:
+        if script_class.is_process and "Base" in script_class.name:
+            lines.extend([
+            "  for t in $othervars ; do",
+            "    "+self.palantir_path+' cell '+self.monitor_dir+' -r ${idvar}_${t} -c '+script_class.name+' --settext "Finished" --setanimate "none" --setbgcolor "#009933" --settxtcolor "#004c19" --addnote "Successfully finished"',
+            "  done"])
+        elif script_class.is_process:
             lines.append("  "+self.palantir_path+' cell '+self.monitor_dir+' -r ${targetvar} -c '+script_class.name+' --settext "Finished" --setanimate "none" --setbgcolor "#009933" --settxtcolor "#004c19" --addnote "Successfully finished"')
+        elif "Base" in script_class.name:
+            lines.extend([
+            "  for t in $othervars ; do",
+            "    "+self.palantir_path+' cell '+self.monitor_dir+' -r ${idvar}_${t} -c '+script_class.name+' --settext "Finished" --setanimate "none" --setbgcolor "#009933" --settxtcolor "#004c19" --addnote "Successfully finished"',
+            "  done"])
         else:
             lines.append("  "+self.palantir_path+' cell '+self.monitor_dir+' -r ${targetvar} -c '+script_class.name+' --settext "Inactive" --setanimate "none" --setbgcolor "#F0F0F0" --settxtcolor "#969696" --addnote "Finished')
 
