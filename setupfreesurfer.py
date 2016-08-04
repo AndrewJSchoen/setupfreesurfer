@@ -14,14 +14,14 @@ doc = """
 Setup FreeSurfer.
 
 Usage:
-  setupfreesurfer [options] (--data_dir <dir> | -d <dir>) (--code_dir <dir> | -c <dir>) [(--freesurfer_home <dir> | -f <dir>)] [--host <host>]
+  setupfreesurfer [options] (--data_dir <dir> | -d <dir>) (--code_dir <dir> | -c <dir>) [(--freesurfer_home <dir> | -f <dir>)] [(--name <str> | -n <str>)] [--host <host>]
 
 Options:
   -h --help                             Show this screen.
   -v --version                          Show the current version.
   -l --longitudinal                     Specify longitudinal processing. [default: False]
   -n <str> --name <str>                 Specify a name for the freesurfer processing. [default: None]
-  -d <dir> --data_dir <dir>             SUBJECTS_DIR will be a sub-directory, allong with an analysis directory.
+  -d <dir> --data_dir <dir>             SUBJECTS_DIR will be a sub-directory, along with an analysis directory.
   -c <dir> --code_dir <dir>             Where the code should be placed.
   -f <dir> --freesurfer_home <dir>      By default, FREESURFER_HOME env variable. Specify otherwise if needed. [default: None]
   --host <host>                         Optional. Require running from a specific host.
