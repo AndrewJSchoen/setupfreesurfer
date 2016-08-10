@@ -192,8 +192,9 @@ export DESIRED_HOSTNAME={host}""".format(**config_dict)
 
 accepted_arguments="$@"
 
-source {config_log}
+
 export CONFIG_FILE={config_log}
+source $CONFIG_FILE
 export SETUP_DIR=$SETUP_DIR
 export SUBMIT_DIR=$SUBMIT_DIR
 export FREESURER_HOME=$FREESURER_HOME
